@@ -1,0 +1,39 @@
+---
+title: Sim Energy
+---
+
+<canvas id="canvas" width="400" height="400"></canvas>
+
+<div id="time"></div>
+
+<script type="text/paperscript" canvas="canvas">
+  var sun = new Path.Circle(new Point(100, 0), 50);
+  sun.fillColor = '#ffd11a';
+  var moon = new Path.Circle(new Point(300, 0), 50);
+  moon.fillColor = '#d1e0e0';
+
+  var sky = new Path.Rectangle({
+    point: [0, 0],
+    size: [view.size.width, view.size.height],
+  });
+  sky.sendToBack();
+  sky.fillColor = '#e6f7ff';
+
+  function onFrame(event) {
+    period = 5;
+
+    sunRadians = ((event.time + (Math.PI / 2)) * (Math.PI * 2)) / period;
+    timeOfDay = (((sunRadians / (2 * Math.PI))) * 24 - 6) % 24;
+
+    // A cylic value between -1 and 1
+    var sinus = Math.sin(sunRadians);
+
+    // Change the y position of the segment point:
+    sun.position.y = sinus * 300 + 400;
+    moon.position.y = (sinus * -1) * 300 + 400;
+
+    document.getElementById('time');
+
+    time.innerHTML = timeOfDay;
+  }
+</script>

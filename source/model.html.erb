@@ -1,0 +1,205 @@
+---
+title: Sim Community Energy
+---
+<script type="text/javascript" src="javascripts/Tangle.js"></script>
+
+<script type="text/javascript" src="javascripts/TangleKit/mootools.js"></script>
+<script type="text/javascript" src="javascripts/TangleKit/sprintf.js"></script>
+<script type="text/javascript" src="javascripts/TangleKit/BVTouchable.js"></script>
+<script type="text/javascript" src="javascripts/TangleKit/TangleKit.js"></script>
+
+<div class="content" id="experiment">
+  <p>
+    <span class="intro">A community energy organisation are raising funds for a site that generates 49.9 kWp</span>. They will sell <span class="TKAdjustableNumber" data-var="onsiteUsage" data-format="percent"  data-step="0.1"></span> of this back to the host business at a <span class="TKAdjustableNumber" data-var="discount" data-format="percent" data-step="0.05"></span> discount of market rates.
+  </p>
+  <p>
+    They are offering their members a dividend payment rate of <span class="TKAdjustableNumber" data-var="dividentPayment" data-format="percent" data-step="0.01"></span>.
+  </p>
+  <p>
+    As solar costs <span class="TKAdjustableNumber" data-var="solarPrice" data-format="£%0f" data-step="100"> per kWp</span>
+    and given the feed in tarrif rate is <span class="TKAdjustableNumber" data-var="feedInTarrif">p</span>,
+    they'll be able to turn a profit in <span data-var="years" class="result"> years</span>.
+  </p>
+
+  <div id="column1"></div>
+</div>
+
+<script>
+  var installationSize = 49.9;
+  var solarCost = 1134;
+  var buildContingency = .1;
+  var runningRate = .05;
+  var onsiteUsage = .70;
+  var inflationRate = .02;
+  var energyMarketInflationRate = .03;
+  var hostBusinessMarketRateEnergyCost = 11;
+  var discount = .25;
+  var hostBusinessRate = hostBusinessMarketRateEnergyCost * (1 - discount);
+  var exportEnergyRate = 4.91;
+
+  var solarPerformanceRatio = 0.75;
+  var areaAnnualElectricityEstimate = 850;
+  var estimatedAnnualEnergyProduction = areaAnnualElectricityEstimate * installationSize;
+
+  var communityFundRate = .2;
+
+  var accountancyCost = 300;
+  var insuranceCost = 200;
+
+  var dividentPaymentRate = 0.04;
+
+  var feedInTarrif = 11.85;
+
+  var costOfInstallingSolarArray = installationSize * solarCost;
+  var contingency = costOfInstallingSolarArray * buildContingency;
+  var totalBuildCost = costOfInstallingSolarArray + contingency;
+  var shareCapital = totalBuildCost;
+
+  function PMT(ir, np, pv, fv, type) {
+    /*
+     * ir   - interest rate per month
+     * np   - number of periods (months)
+     * pv   - present value
+     * fv   - future value
+     * type - when the payments are due:
+     *        0: end of the period, e.g. end of month (default)
+     *        1: beginning of period
+     */
+    var pmt, pvif;
+
+    fv || (fv = 0);
+    type || (type = 0);
+
+    if (ir === 0)
+        return -(pv + fv)/np;
+
+    pvif = Math.pow(1 + ir, np);
+    pmt = - ir * pv * (pvif + fv) / (pvif - 1);
+
+    if (type === 1)
+        pmt /= (1 + ir);
+
+    return pmt;
+  }
+
+  function calculateBreakEvenYear(table){
+    for (var year = 1; ; year++) {
+
+      previous = table[0];
+
+      inflationMultiple = ((1 + inflationRate).pow(year));
+
+      incomeFromHostBusiness = previous['income']['fromHostBusiness'] * ((1 + energyMarketInflationRate).pow(year));
+      incomeFromExport = previous['income']['fromExport']
+      incomeFromFit = previous['income']['fromFit'] * inflationMultiple;
+
+      outgoingsAccountancy = previous['outgoings']['accountancy'] * inflationMultiple;
+      outgoingsMaintainance = previous['outgoings']['maintainance'] * inflationMultiple;
+      outgoingsDividend = previous['outgoings']['dividend'];
+      outgoingsInsurance = previous['outgoings']['insurance'] * inflationMultiple;
+      outgoingsCommunityFund = previous['outgoings']['communityFund'];
+
+      newData = {
+        income: {
+          fromHostBusiness: incomeFromHostBusiness,
+          fromExport: incomeFromExport,
+          fromFit: incomeFromFit,
+          total: incomeFromHostBusiness + incomeFromExport + incomeFromFit
+        },
+        outgoings: {
+          accountancy: outgoingsAccountancy,
+          maintainance: outgoingsMaintainance,
+          dividend: outgoingsDividend,
+          insurance: outgoingsInsurance,
+          communityFund: outgoingsCommunityFund,
+          total: outgoingsAccountancy + outgoingsMaintainance + outgoingsDividend + outgoingsInsurance + outgoingsCommunityFund
+        }
+      };
+
+      newData['surplus_or_loss'] = newData['income']['total'] + newData['outgoings']['total'];
+
+      table[year] = newData;
+
+      if ((newData['income']['total'] + newData['outgoings']['total']) > 0) {
+        console.log(table)
+        return year;
+      }
+      if ( year > 100 ) {
+        return '-1';
+      }
+    };
+  }
+
+  function createTable() {
+    hostBusinessRate = hostBusinessMarketRateEnergyCost * (1 - discount);
+
+    costOfInstallingSolarArray = installationSize * solarCost;
+    contingency = costOfInstallingSolarArray * buildContingency;
+    totalBuildCost = costOfInstallingSolarArray + contingency;
+    shareCapital = totalBuildCost;
+
+    incomeFromHostBusiness = (onsiteUsage * estimatedAnnualEnergyProduction * hostBusinessRate) / 100
+    incomeFromExport = ((1 - onsiteUsage) * exportEnergyRate * estimatedAnnualEnergyProduction) / 100
+    incomeFromFit = (feedInTarrif * estimatedAnnualEnergyProduction) / 100
+
+    outgoingMaintainance = runningRate * costOfInstallingSolarArray;
+    outgoingDividend = PMT(dividentPaymentRate, 20, shareCapital, 0, 0);
+    outgoingCommunityFund = outgoingDividend * communityFundRate;
+
+    var table = {
+      0: {
+        income: {
+          fromHostBusiness: incomeFromHostBusiness,
+          fromExport: incomeFromExport,
+          fromFit: incomeFromFit,
+          total: incomeFromHostBusiness + incomeFromExport + incomeFromFit
+        },
+        outgoings: {
+          accountancy: -accountancyCost,
+          maintainance: -outgoingMaintainance,
+          dividend: outgoingDividend,
+          insurance: -insuranceCost,
+          communityFund: outgoingCommunityFund,
+          total: -accountancyCost - outgoingMaintainance + outgoingDividend - insuranceCost + outgoingCommunityFund
+        }
+      }
+    }
+
+    table[0]['surplus_or_loss'] = table[0]['income']['total'] + table[0]['outgoings']['total'];
+
+    return table;
+  }
+
+  window.addEventListener("load", function(){
+
+    table = createTable()
+    breakEvenYear = calculateBreakEvenYear(table);
+
+    var model = {
+      initialize: function () {
+        this.solarPrice = solarCost;
+        this.dividentPayment = dividentPaymentRate;
+        this.onsiteUsage = onsiteUsage;
+        this.feedInTarrif = feedInTarrif;
+        this.discount = discount;
+      },
+      update: function () {
+        solarCost = this.solarPrice;
+        dividentPaymentRate = this.dividentPayment;
+        feedInTarrif = this.feedInTarrif;
+        onsiteUsage = this.onsiteUsage;
+        discount = this.discount;
+
+        table = createTable();
+        breakEvenYear = calculateBreakEvenYear(table);
+
+        this.years = breakEvenYear;
+      }
+    };
+
+    var id = "experiment";
+    var element = document.getElementById(id);
+
+    new Tangle(element,model);
+  });
+</script>

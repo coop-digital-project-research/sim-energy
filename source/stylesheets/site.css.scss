@@ -1,0 +1,93 @@
+@import 'normalize';
+@import 'simple-grid';
+
+$green : #5DF35C;
+$blue : #22ADC2;
+$pink : #F35C9F;
+$light-grey: #F3F3F3;
+$dark-grey: #736F66;
+$white: #FFFFFF;
+
+.content {
+  padding: 1em;
+}
+
+h1 {
+  font-size: 1.5em;
+}
+
+#experiment {
+  margin: 1em;
+  .intro {
+    font-weight: 500
+  }
+  p {
+    font-size: 1.3em;
+    font-weight: 400;
+  }
+  max-width: 400px;
+}
+
+#output {
+  margin-left: 1em;
+  font-weight: 500;
+}
+
+#slider {
+  margin: 0 2em 4em 2em;
+}
+
+.result {
+  color: $pink;
+  font-weight: 600;
+}
+
+.TKAdjustableNumber {
+  color: $blue;
+}
+
+/* cursor */
+
+.TKCursorDragHorizontal {
+  cursor: pointer;
+  cursor: move;
+  cursor: col-resize;
+}
+
+
+/* TKToggle */
+
+.TKToggle {
+  color: $green;
+  border-bottom: 1px dashed $green;
+  cursor: pointer;
+}
+
+
+/* TKAdjustableNumber */
+
+.TKAdjustableNumber {
+  position:relative;
+  color: $blue;
+  border-bottom: 1px dashed $blue;
+}
+
+.TKAdjustableNumberHover {
+}
+
+.TKAdjustableNumberDown {
+  color: darken($blue, 10);
+  border-bottom: 1px dashed darken($blue, 10);
+}
+
+.TKAdjustableNumberHelp {
+  position:absolute;
+  color: $blue;
+  font: 9px "Helvetica-Neue", "Arial", sans-serif;
+  background: $white;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid $blue;
+}
+
+

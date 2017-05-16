@@ -1,0 +1,157 @@
+---
+title: Sim Community Energy
+---
+
+<script src="javascripts/nouislider.min.js"></script>
+
+<div class="content">
+
+  <h1>Dropping the Feed In Tarrif below 9p means that a community energy project will no longer turn profit within 20 years</h1>
+
+  <p>
+    Try changing the feed in tarrif:
+    <span id="output">12p</span>
+  </p>
+
+  <div id="slider"></div>
+
+  <canvas id="myChart"></canvas>
+
+  <p>This model is based upon Grimsby Renewables' most recent share offer.</p>
+
+  <ul>
+    <li>Installation size: 49.9 kWp</li>
+    <li>Solar installation cost per kWp £1,134</li>
+    <li>Area annual electricity estimate 850 kWh / kWp</li>
+    <li>Estimated annual energy production  42,415  kWh</li>
+    <li>Dividend payment rate 4.00% </li>
+    <li>Community fund rate 20%</li>
+  </ul>
+
+  <script>
+
+  window.addEventListener("load", function(){
+    var ctx = document.getElementById("myChart");
+    var dataSets = {
+      6: [-3206, -3149, -3089, -3027, -2964, -2898, -2830, -2760, -2688, -2613, -2536, -2456, -2374, -2289, -2201, -2111, -2018, -1921, -1822, -1719, -1613],
+      7: [-2782, -2716, -2648, -2577, -2504, -2430, -2352, -2273, -2191, -2106, -2019, -1929, -1836, -1740, -1642, -1540, -1435, -1327, -1216, -1101, -983],
+      8: [-2358, -2283, -2206, -2127, -2045, -1961, -1875, -1785, -1694, -1599, -1502, -1401, -1298, -1192, -1082, -969, -853, -733, -610, -483, -352],
+      9: [-1934, -1851, -1765, -1677, -1586, -1493, -1397, -1298, -1197, -1092, -985, -874, -760, -643, -522, -398, -271, -139, -4, 135, 278],
+      10: [-1510, -1418, -1324, -1227, -1127, -1025, -919, -811, -700, -585, -468, -347, -222, -94, 37, 172, 312, 454, 601, 753, 908],
+      11: [-1086, -985, -882, -777, -668, -556, -442, -324, -203, -78,  49, 181,  316,  454,  597,  743,  894,  1048,  1207,  1371,  1538],
+      12: [-661, -553, -441, -327, -209, -88,  36, 163,  294,  429,  567,  708,  854,  1003,  1157,  1314,  1476,  1642,  1813,  1988, 2169]
+    }
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        responsive: true,
+        data: {
+            labels: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],
+            datasets: [{
+                label: 'Profit or loss',
+                data: dataSets[12],
+                borderWidth: 0,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                  'rgba(75, 192, 192, 0.5)'
+                ]
+              }
+            ]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          scales: {
+            yAxes: [
+              {
+                display: true,
+                ticks: {
+                  steps: 10,
+                  max: 3000,
+                  min: -3000
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Profit / Loss (£)'
+                }
+              }
+            ],
+            xAxes: [
+              {
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Year trading'
+                }
+              }
+            ]
+          }
+        }
+    });
+    var slider = document.getElementById('slider');
+
+    noUiSlider.create(slider, {
+      start: [12],
+      range: {
+        'min': [6],
+        'max': [12]
+      },
+      step: 1,
+      pips: { // Show a scale with the slider
+        mode: 'steps',
+        density: 12
+      },
+    });
+
+    var output = document.getElementById('output');
+
+    slider.noUiSlider.on('update', function( values, handle ){
+      value = Math.abs(values[handle])
+      output.innerHTML = value + "p";
+
+      myChart.data.datasets[0].data = dataSets[value];
+
+      colours = myChart.data.datasets[0].data.map(function(x) {
+        if (Math.sign(x) -1) {
+          return 'rgba(255, 99, 132, 0.5)'
+        } else {
+          return 'rgba(75, 192, 192, 0.5)'
+        };
+      });
+
+      myChart.data.datasets[0].backgroundColor = colours;
+
+      myChart.update();
+    });
+
+  });
+
+
+
+
+
+
+
+
+
+
+  </script>
+</div>
