@@ -17,10 +17,10 @@ title: Sim Community Energy
   <p>
     As solar costs <span class="TKAdjustableNumber" data-var="solarPrice" data-format="£%0f" data-step="100"> per kWp</span>
     and given the feed in tarrif rate is <span class="TKAdjustableNumber" data-var="feedInTarrif">p</span>,
-    they'll be able to turn a profit in <br /><span data-var="years" class="result"> years</span>.
+    they'll be able to turn a profit in <span data-var="years" class="result"> years</span>.
   </p>
 
-  <div id="column1"></div>
+  <canvas id="myChart"></canvas>
 </div>
 
 <script>
@@ -120,11 +120,17 @@ title: Sim Community Energy
       table[year] = newData;
 
       if ((newData['income']['total'] + newData['outgoings']['total']) > 0) {
-        console.log(table)
-        return year;
+        if (breakYear) {
+
+        } else {
+          breakYear = year;
+        };
+        if (year > 20) {
+          return([breakYear, table]);
+        };
       }
       if ( year > 100 ) {
-        return '-1';
+        return(['-1', table]);
       }
     };
   }
@@ -172,7 +178,61 @@ title: Sim Community Energy
   window.addEventListener("load", function(){
 
     table = createTable()
-    breakEvenYear = calculateBreakEvenYear(table);
+    breakEvenYear = calculateBreakEvenYear(table)[0];
+    tableObjectData = calculateBreakEvenYear(table)[1];
+
+    tableData = [];
+
+    for(var key in tableObjectData) {
+      if(tableObjectData[key]['surplus_or_loss'] != undefined) {
+        tableData.push(tableObjectData[key]['surplus_or_loss']);
+      };
+    };
+
+    var ctx = document.getElementById("myChart");
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        responsive: true,
+        data: {
+            labels: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+            datasets: [{
+                label: 'Profit or loss',
+                data: tableData,
+                borderWidth: 0
+              }
+            ]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          scales: {
+            yAxes: [
+              {
+                display: true,
+                ticks: {
+                  steps: 10,
+                  max: 3000,
+                  min: -3000
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Profit / Loss (£)'
+                }
+              }
+            ],
+            xAxes: [
+              {
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Year trading'
+                }
+              }
+            ]
+          }
+        }
+    });
 
     var model = {
       initialize: function () {
@@ -190,7 +250,29 @@ title: Sim Community Energy
         discount = this.discount;
 
         table = createTable();
-        breakEvenYear = calculateBreakEvenYear(table);
+        breakEvenYear = calculateBreakEvenYear(table)[0];
+
+        tableObjectData = calculateBreakEvenYear(table)[1];
+        tableData = [];
+
+        for(var key in tableObjectData) {
+          if(tableObjectData[key]['surplus_or_loss'] != undefined) {
+            tableData.push(tableObjectData[key]['surplus_or_loss']);
+          };
+        };
+
+        colours = tableData.map(function(x) {
+          if (Math.sign(x) -1) {
+            return 'rgba(255, 99, 132, 0.5)'
+          } else {
+            return 'rgba(75, 192, 192, 0.5)'
+          };
+        });
+
+        myChart.data.datasets[0].backgroundColor = colours;
+
+        myChart.data.datasets[0].data = tableData;
+        myChart.update();
 
         this.years = breakEvenYear;
       }
@@ -201,4 +283,8 @@ title: Sim Community Energy
 
     new Tangle(element,model);
   });
+
+  function showMeToday() {
+    console.log('TODAY!');
+  }
 </script>
