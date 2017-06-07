@@ -9,15 +9,15 @@ title: Sim Community Energy
 
 <div class="content" id="experiment">
   <p>
-    <span class="intro">A community energy organisation are raising funds for a site that generates 49.9 kWp</span>. They will sell <span class="TKAdjustableNumber" data-var="onsiteUsage" data-format="percent"  data-step="0.1"></span> of this back to the host business at a <span class="TKAdjustableNumber" data-var="discount" data-format="percent" data-step="0.05"></span> discount of market rates.
+    <span class="intro">A community energy organisation are raising funds for a site that generates 49.9 kWp</span>. They will sell <span class="TKAdjustableNumber" data-var="onsiteUsage" data-format="percent"  data-step="0.1"></span> of this electricity back to the host business at a <span class="TKAdjustableNumber" data-var="discount" data-format="percent" data-step="0.05"></span> discount of market rates.
   </p>
   <p>
-    They are offering their members a dividend payment rate of <span class="TKAdjustableNumber" data-var="dividentPayment" data-format="percent" data-step="0.01"></span>.
+    They are offering their members a <span class="TKAdjustableNumber" data-var="dividentPayment" data-format="percent" data-step="0.01"></span> interest rate.
   </p>
   <p>
-    As solar costs <span class="TKAdjustableNumber" data-var="solarPrice" data-format="£%0f" data-step="100"> per kWp</span>
+    As solar costs <span class="TKAdjustableNumber" data-var="solarPrice" data-format="£%0f" data-step="100"> per kWp</span> to install
     and given the feed in tarrif rate is <span class="TKAdjustableNumber" data-var="feedInTarrif">p</span>,
-    they'll be able to turn a profit in <span data-var="years" class="result"> years</span>.
+    they'll turn a profit in <span data-var="years" class="result"> years</span>.
   </p>
 
   <p><a href="#" onclick="showMeToday()">Show the situation today</a></p>
@@ -291,7 +291,7 @@ title: Sim Community Energy
   });
 
   function showMeToday() {
-    feedInTarrif = 4;
+    feedInTarrif = 4.14;
     tangle.setValue("feedInTarrif", feedInTarrif);
   }
 </script>
