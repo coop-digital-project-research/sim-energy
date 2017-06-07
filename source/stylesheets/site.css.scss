@@ -17,7 +17,7 @@ h1 {
 }
 
 #experiment {
-  margin: 1em;
+  margin: 0 1em 1em 1em;
   .intro {
     font-weight: 500
   }
@@ -26,6 +26,9 @@ h1 {
     font-weight: 400;
   }
   max-width: 600px;
+  a {
+    color: $pink;
+  }
 }
 
 #output {

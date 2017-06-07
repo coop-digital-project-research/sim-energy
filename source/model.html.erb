@@ -20,6 +20,8 @@ title: Sim Community Energy
     they'll be able to turn a profit in <span data-var="years" class="result"> years</span>.
   </p>
 
+  <p><a href="#" onclick="showMeToday()">Show the situation today</a></p>
+
   <canvas id="myChart"></canvas>
 </div>
 
@@ -53,6 +55,9 @@ title: Sim Community Energy
   var contingency = costOfInstallingSolarArray * buildContingency;
   var totalBuildCost = costOfInstallingSolarArray + contingency;
   var shareCapital = totalBuildCost;
+
+  var myChart;
+  var tangle;
 
   function PMT(ir, np, pv, fv, type) {
     /*
@@ -192,7 +197,7 @@ title: Sim Community Energy
 
     var ctx = document.getElementById("myChart");
 
-    var myChart = new Chart(ctx, {
+    myChart = new Chart(ctx, {
         type: 'bar',
         responsive: true,
         data: {
@@ -264,9 +269,9 @@ title: Sim Community Energy
 
         colours = tableData.map(function(x) {
           if (Math.sign(x) -1) {
-            return 'rgba(255, 99, 132, 0.5)'
+            return 'rgba(243, 92, 159, 1)'
           } else {
-            return 'rgba(75, 192, 192, 0.5)'
+            return 'rgba(93, 243, 92, 1)'
           };
         });
 
@@ -282,10 +287,11 @@ title: Sim Community Energy
     var id = "experiment";
     var element = document.getElementById(id);
 
-    new Tangle(element,model);
+    tangle = new Tangle(element,model);
   });
 
   function showMeToday() {
-    console.log('TODAY!');
+    feedInTarrif = 4;
+    tangle.setValue("feedInTarrif", feedInTarrif);
   }
 </script>
