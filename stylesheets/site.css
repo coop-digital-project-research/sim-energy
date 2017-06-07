@@ -593,13 +593,15 @@ h1 {
   font-size: 1.5em; }
 
 #experiment {
-  margin: 1em;
-  max-width: 400px; }
+  margin: 0 1em 1em 1em;
+  max-width: 600px; }
   #experiment .intro {
     font-weight: 500; }
   #experiment p {
     font-size: 1.3em;
     font-weight: 400; }
+  #experiment a {
+    color: #F35C9F; }
 
 #output {
   margin-left: 1em;

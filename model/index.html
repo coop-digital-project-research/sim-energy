@@ -22,18 +22,20 @@
 
 <div class="content" id="experiment">
   <p>
-    <span class="intro">A community energy organisation are raising funds for a site that generates 49.9 kWp</span>. They will sell <span class="TKAdjustableNumber" data-var="onsiteUsage" data-format="percent"  data-step="0.1"></span> of this back to the host business at a <span class="TKAdjustableNumber" data-var="discount" data-format="percent" data-step="0.05"></span> discount of market rates.
+    <span class="intro">A community energy organisation are raising funds for a site that generates 49.9 kWp</span>. They will sell <span class="TKAdjustableNumber" data-var="onsiteUsage" data-format="percent"  data-step="0.1"></span> of this electricity back to the host business at a <span class="TKAdjustableNumber" data-var="discount" data-format="percent" data-step="0.05"></span> discount of market rates.
   </p>
   <p>
-    They are offering their members a dividend payment rate of <span class="TKAdjustableNumber" data-var="dividentPayment" data-format="percent" data-step="0.01"></span>.
+    They are offering their members a <span class="TKAdjustableNumber" data-var="dividentPayment" data-format="percent" data-step="0.01"></span> interest rate.
   </p>
   <p>
-    As solar costs <span class="TKAdjustableNumber" data-var="solarPrice" data-format="£%0f" data-step="100"> per kWp</span>
+    As solar costs <span class="TKAdjustableNumber" data-var="solarPrice" data-format="£%0f" data-step="100"> per kWp</span> to install
     and given the feed in tarrif rate is <span class="TKAdjustableNumber" data-var="feedInTarrif">p</span>,
-    they'll be able to turn a profit in <br /><span data-var="years" class="result"> years</span>.
+    they'll turn a profit in <span data-var="years" class="result"> years</span>.
   </p>
 
-  <div id="column1"></div>
+  <p><a href="#" onclick="showMeToday()">Show the situation today</a></p>
+
+  <canvas id="myChart"></canvas>
 </div>
 
 <script>
@@ -67,6 +69,9 @@
   var totalBuildCost = costOfInstallingSolarArray + contingency;
   var shareCapital = totalBuildCost;
 
+  var myChart;
+  var tangle;
+
   function PMT(ir, np, pv, fv, type) {
     /*
      * ir   - interest rate per month
@@ -95,6 +100,7 @@
   }
 
   function calculateBreakEvenYear(table){
+    var breakYear;
     for (var year = 1; ; year++) {
 
       previous = table[0];
@@ -133,11 +139,17 @@
       table[year] = newData;
 
       if ((newData['income']['total'] + newData['outgoings']['total']) > 0) {
-        console.log(table)
-        return year;
+        if (breakYear !== undefined) {
+
+        } else {
+          breakYear = year;
+        };
+        if (year > 20) {
+          return([breakYear, table]);
+        };
       }
       if ( year > 100 ) {
-        return '-1';
+        return(['-1', table]);
       }
     };
   }
@@ -185,7 +197,61 @@
   window.addEventListener("load", function(){
 
     table = createTable()
-    breakEvenYear = calculateBreakEvenYear(table);
+    breakEvenYear = calculateBreakEvenYear(table)[0];
+    tableObjectData = calculateBreakEvenYear(table)[1];
+
+    tableData = [];
+
+    for(var key in tableObjectData) {
+      if(tableObjectData[key]['surplus_or_loss'] != undefined) {
+        tableData.push(tableObjectData[key]['surplus_or_loss']);
+      };
+    };
+
+    var ctx = document.getElementById("myChart");
+
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        responsive: true,
+        data: {
+            labels: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+            datasets: [{
+                label: 'Profit or loss',
+                data: tableData,
+                borderWidth: 0
+              }
+            ]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          scales: {
+            yAxes: [
+              {
+                display: true,
+                ticks: {
+                  steps: 10,
+                  max: 3000,
+                  min: -3000
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Profit / Loss (£)'
+                }
+              }
+            ],
+            xAxes: [
+              {
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Year trading'
+                }
+              }
+            ]
+          }
+        }
+    });
 
     var model = {
       initialize: function () {
@@ -203,7 +269,29 @@
         discount = this.discount;
 
         table = createTable();
-        breakEvenYear = calculateBreakEvenYear(table);
+        breakEvenYear = calculateBreakEvenYear(table)[0];
+
+        tableObjectData = calculateBreakEvenYear(table)[1];
+        tableData = [];
+
+        for(var key in tableObjectData) {
+          if(tableObjectData[key]['surplus_or_loss'] != undefined) {
+            tableData.push(tableObjectData[key]['surplus_or_loss']);
+          };
+        };
+
+        colours = tableData.map(function(x) {
+          if (Math.sign(x) -1) {
+            return 'rgba(243, 92, 159, 1)'
+          } else {
+            return 'rgba(93, 243, 92, 1)'
+          };
+        });
+
+        myChart.data.datasets[0].backgroundColor = colours;
+
+        myChart.data.datasets[0].data = tableData;
+        myChart.update();
 
         this.years = breakEvenYear;
       }
@@ -212,8 +300,13 @@
     var id = "experiment";
     var element = document.getElementById(id);
 
-    new Tangle(element,model);
+    tangle = new Tangle(element,model);
   });
+
+  function showMeToday() {
+    feedInTarrif = 4.14;
+    tangle.setValue("feedInTarrif", feedInTarrif);
+  }
 </script>
 
   </body>
