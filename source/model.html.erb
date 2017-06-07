@@ -82,6 +82,7 @@ title: Sim Community Energy
   }
 
   function calculateBreakEvenYear(table){
+    var breakYear;
     for (var year = 1; ; year++) {
 
       previous = table[0];
@@ -120,7 +121,7 @@ title: Sim Community Energy
       table[year] = newData;
 
       if ((newData['income']['total'] + newData['outgoings']['total']) > 0) {
-        if (breakYear) {
+        if (breakYear !== undefined) {
 
         } else {
           breakYear = year;
